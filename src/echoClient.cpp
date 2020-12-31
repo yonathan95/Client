@@ -11,8 +11,21 @@ int main (int argc, char *argv[]) {
     }
     std::string host = argv[1];
     short port = atoi(argv[2]);
-    
-    ConnectionHandler connectionHandler(host, port);
+    std::map<std::string,short> opMap = std::map<std::string,short>();
+    opMap["ADMINREG"] = 1;
+    opMap["STUDENTREG"] = 2;
+    opMap["LOGIN"] = 3;
+    opMap["LOGOUT"] = 4;
+    opMap["COURSEREG"] = 5;
+    opMap["KDAMCHECK"] = 6;
+    opMap["COURSESTAT"] = 7;
+    opMap["STUDENTSTAT"] = 8;
+    opMap["ISREGISTERED"] = 9;
+    opMap["UNREGISTER"] = 10;
+    opMap["MYCOURSES"] = 11;
+    opMap["ACK"] = 12;
+    opMap["ERR"] = 13;
+    ConnectionHandler connectionHandler(host, port, opMap);
     if (!connectionHandler.connect()) {
         std::cerr << "Cannot connect to " << host << ":" << port << std::endl;
         return 1;
@@ -24,6 +37,7 @@ int main (int argc, char *argv[]) {
         char buf[bufsize];
         std::cin.getline(buf, bufsize);
 		std::string line(buf);
+		connectionHandler.prepareLine(line);
 		int len=line.length();
         if (!connectionHandler.sendLine(line)) {
             std::cout << "Disconnected. Exiting...\n" << std::endl;

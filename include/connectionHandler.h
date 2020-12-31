@@ -12,10 +12,13 @@ private:
 	const std::string host_;
 	const short port_;
 	boost::asio::io_service io_service_;   // Provides core I/O functionality
-	tcp::socket socket_; 
+	tcp::socket socket_;
+	short sendingOpCode;
+    short gettingOpCode;
+    std::map<std::string, short> opMap;
  
 public:
-    ConnectionHandler(std::string host, short port);
+    ConnectionHandler(std::string host, short port, std::map<std::string,short>);
     virtual ~ConnectionHandler();
  
     // Connect to the remote machine
@@ -39,14 +42,20 @@ public:
  
     // Get Ascii data from the server until the delimiter character
     // Returns false in case connection closed before null can be read.
-    bool getFrameAscii(std::string& frame, char delimiter);
+    bool getFrameAscii(std::string& frame);
  
     // Send a message to the remote host.
     // Returns false in case connection is closed before all the data is sent.
-    bool sendFrameAscii(const std::string& frame, char delimiter);
+    bool sendFrameAscii(const std::string& frame);
 	
     // Close down the connection properly.
     void close();
+
+    void prepareLine(std::string &line);
+
+    void shortToBytes(short num, char* bytesArr);
+
+    short bytesToShort(char* bytesArr);
  
 }; //class ConnectionHandler
  
