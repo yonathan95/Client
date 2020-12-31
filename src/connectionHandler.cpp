@@ -8,7 +8,7 @@ using std::cerr;
 using std::endl;
 using std::string;
  
-ConnectionHandler::ConnectionHandler(string host, short port,std::map<std::string,short>): host_(host), port_(port), io_service_(), socket_(io_service_), sendingOpCode(0), gettingOpCode(0),opMap(map){}
+ConnectionHandler::ConnectionHandler(string host, short port,std::map<std::string,short> map): host_(host), port_(port), io_service_(), socket_(io_service_), sendingOpCode(0), gettingOpCode(0),opMap(map){}
     
 ConnectionHandler::~ConnectionHandler() {
     close();
@@ -77,35 +77,38 @@ bool ConnectionHandler::getFrameAscii(std::string& frame) {
     // Stop when we encounter the null character.
     // Notice that the null character is not appended to the frame string.
     unsigned int counter = 0;
-    char bytes[] opBytes = char bytes[2];
-    char bytes[] messageBytes = char bytes[2];
+    char opBytes [2] ;
+    char messageBytes [2] ;
     try {
-	while(ch != '\0'){
-		if(!getBytes(&ch, 1))
-		{
-			return false;
-		}
+        while(ch != '\0'){
+            if(!getBytes(&ch, 1))
+            {
+                return false;
+            }
 
-		if(counter > 3 & ch != '\0'){
-            frame.append(1, ch);
-		}
-		if (counter < 2){
-            opBytes[counter] = ch;
-		}
-        if (counter > 1 & counter < 4){
-            messageBytes[counter] = ch;
-        }
-        if (counter == 2){
-            gettingOpCode = bytesToShort(opBytes);
-            frame = frame + opMap[gettingOpCode];
-        }
-        if (counter == 4){
-            messageOpCode = bytesToShort(messageBytes);
-            frame = frame + " ";
-            frame = frame + to_string(messageOpCode);
-            if (gettingOpCode == 13) break;
-        }
-	}
+            if(counter > 3 & ch != '\0'){
+                frame.append(1, ch);
+            }
+            if (counter < 2){
+                opBytes[counter] = ch;
+            }
+            if (counter > 1 & counter < 4){
+                messageBytes[counter] = ch;
+            }
+            counter = counter + 1;
+            if (counter == 2){
+                gettingOpCode = bytesToShort(opBytes);
+                if (gettingOpCode == 12) frame = frame + "ACK";
+                else frame = frame + "ERROR";
+
+            }
+            if (counter == 4){
+                gettingOpCode = bytesToShort(messageBytes);
+                frame = frame + " ";
+                frame = frame + std::to_string(gettingOpCode);
+                if (gettingOpCode == 13) break;
+            }
+	    }
     } catch (std::exception& e) {
 	std::cerr << "recv failed2 (Error: " << e.what() << ')' << std::endl;
 	return false;
@@ -115,11 +118,9 @@ bool ConnectionHandler::getFrameAscii(std::string& frame) {
  
  
 bool ConnectionHandler::sendFrameAscii(const std::string& frame) {
-    if (opCode == 1 | opCode == 2 | opCode == 3) {
-        const char bytes[]
-        arr = char
-        bytes[frame.length() + 4];
-        shortToBytes(opCode, &arr);
+    if (sendingOpCode == 1 | sendingOpCode == 2 | sendingOpCode == 3) {
+        char arr[frame.length() + 4];
+        shortToBytes(sendingOpCode, &arr);
         unsigned int freeSlot = 2;
         for (char &c : frame) {
             if (c == " ") {
@@ -133,14 +134,14 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame) {
         arr[freeSlot] = '\0';
         sendBytes(arr, frame.length() + 4);
     }
-    else if (opCode == 4 | opCode == 11) {
-        const char bytes[] arr = char bytes[2];
-        shortToBytes(opCode, &arr);
+    else if (sendingOpCode == 4 | sendingOpCode == 11) {
+        char arr[2];
+        shortToBytes(sendingOpCode, &arr);
         sendBytes(arr, 2);
     }
-    else if (opCode == 8) {
-        const char bytes[] arr = char bytes[frame.length() + 3];
-        shortToBytes(opCode, &arr);
+    else if (sendingOpCode == 8) {
+        char arr[frame.length() + 3];
+        shortToBytes(sendingOpCode, &arr);
         unsigned int freeSlot = 2;
         for(char& c : frame) {
             arr[freeSlot] = c;
@@ -150,8 +151,8 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame) {
         sendBytes(arr, frame.length() + 3);
     }
     else {
-        const char bytes[] arr = char bytes[4];
-        shortToBytes(opCode, &arr);
+        char arr[4];
+        shortToBytes(sendingOpCode, &arr);
         unsigned int freeSlot = 2;
         for(char& c : frame) {
             arr[freeSlot] = c;
@@ -176,14 +177,14 @@ void ConnectionHandler::prepareLine(std::string &line){
     std::string delimiter = " ";
     size_t pos = 0;
     std::string token;
-    pos = s.find(delimiter);
-    if (pos != s.npos){
+    pos = line.find(delimiter);
+    if (pos != line.npos){
         code = line.substr(0, pos);
         line.erase(0, pos + delimiter.length());
-        opCode = opMap[code];
+        sendingOpCode = opMap[code];
     }
     else{
-        opCode = opMap[line];
+        sendingOpCode = opMap[line];
     }
 }
 
