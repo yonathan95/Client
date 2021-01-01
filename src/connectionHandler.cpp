@@ -51,16 +51,11 @@ bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
     int tmp = 0;
 	boost::system::error_code error;
     try {
-        std::cout<<"sending now"<<std::endl;
         while (!error && bytesToWrite > tmp ) {
-            std::cout<<"while 1"<<std::endl;
             tmp += socket_.write_some(boost::asio::buffer(bytes, bytesToWrite - tmp), error);
-            std::cout<<"been sent"<<std::endl;
         }
-		if(error){
-            std::cout<<"error"<<std::endl;
-            throw boost::system::system_error(error);
-		}
+		        if(error)
+		                throw boost::system::system_error(error);
 
     } catch (std::exception& e) {
         std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
@@ -79,14 +74,16 @@ bool ConnectionHandler::sendLine(std::string& line) {
  
 
 bool ConnectionHandler::getFrameAscii(std::string& frame) {
-    char ch;
+    std::cout<<"getting string"<<endl;
+    char ch = '1';
     // Stop when we encounter the null character.
     // Notice that the null character is not appended to the frame string.
     unsigned int counter = 0;
     char opBytes [2] ;
     char messageBytes [2] ;
+    int i = 0;
     try {
-        while(ch != '\0'){
+        while(i < 2 | ch != '\0'){
             if(!getBytes(&ch, 1))
             {
                 return false;
@@ -95,6 +92,7 @@ bool ConnectionHandler::getFrameAscii(std::string& frame) {
                 frame.append(1, ch);
             }
             if (counter < 2){
+                std::cout<<ch<<endl;
                 opBytes[counter] = ch;
             }
             if (counter > 1 & counter < 4){
@@ -113,6 +111,7 @@ bool ConnectionHandler::getFrameAscii(std::string& frame) {
                 frame = frame + std::to_string(OpMessage);
                 if (gettingOpCode == 13) break;
             }
+            i = i + 1;
 	    }
     } catch (std::exception& e) {
 	std::cerr << "recv failed2 (Error: " << e.what() << ')' << std::endl;
@@ -124,7 +123,7 @@ bool ConnectionHandler::getFrameAscii(std::string& frame) {
  
 bool ConnectionHandler::sendFrameAscii(const std::string& frame) {
     if (sendingOpCode == 1 | sendingOpCode == 2 | sendingOpCode == 3) {
-        char arr[frame.length() + 4];
+        char arr[frame.length() + 3];
         shortToBytes(sendingOpCode, &arr[0]);
         unsigned int freeSlot = 2;
         for (const char &c : frame) {
@@ -137,7 +136,7 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame) {
             }
         }
         arr[freeSlot] = '\0';
-        sendBytes(arr, frame.length() + 4);
+        sendBytes(arr, frame.length() + 3);
     }
     else if (sendingOpCode == 4 | sendingOpCode == 11) {
         char arr[2];
@@ -202,4 +201,8 @@ short ConnectionHandler::bytesToShort(char* bytesArr){
     short result = (short)((bytesArr[0] & 0xff) << 8);
     result += (short)(bytesArr[1] & 0xff);
     return result;
+}
+
+short ConnectionHandler::getCode(){
+    return sendingOpCode;
 }
