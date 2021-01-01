@@ -51,11 +51,17 @@ bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
     int tmp = 0;
 	boost::system::error_code error;
     try {
+        std::cout<<"sending now"<<std::endl;
         while (!error && bytesToWrite > tmp ) {
-			tmp += socket_.write_some(boost::asio::buffer(bytes + tmp, bytesToWrite - tmp), error);
+            std::cout<<"while 1"<<std::endl;
+            tmp += socket_.write_some(boost::asio::buffer(bytes, bytesToWrite - tmp), error);
+            std::cout<<"been sent"<<std::endl;
         }
-		if(error)
-			throw boost::system::system_error(error);
+		if(error){
+            std::cout<<"error"<<std::endl;
+            throw boost::system::system_error(error);
+		}
+
     } catch (std::exception& e) {
         std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
         return false;
@@ -119,10 +125,10 @@ bool ConnectionHandler::getFrameAscii(std::string& frame) {
 bool ConnectionHandler::sendFrameAscii(const std::string& frame) {
     if (sendingOpCode == 1 | sendingOpCode == 2 | sendingOpCode == 3) {
         char arr[frame.length() + 4];
-        shortToBytes(sendingOpCode, &arr);
+        shortToBytes(sendingOpCode, &arr[0]);
         unsigned int freeSlot = 2;
-        for (char &c : frame) {
-            if (c == " ") {
+        for (const char &c : frame) {
+            if (c == ' ') {
                 arr[freeSlot] = '\0';
                 freeSlot = freeSlot + 1;
             } else {
@@ -135,14 +141,14 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame) {
     }
     else if (sendingOpCode == 4 | sendingOpCode == 11) {
         char arr[2];
-        shortToBytes(sendingOpCode, &arr);
+        shortToBytes(sendingOpCode, &arr[0]);
         sendBytes(arr, 2);
     }
     else if (sendingOpCode == 8) {
         char arr[frame.length() + 3];
-        shortToBytes(sendingOpCode, &arr);
+        shortToBytes(sendingOpCode, &arr[0]);
         unsigned int freeSlot = 2;
-        for(char& c : frame) {
+        for(const char& c : frame) {
             arr[freeSlot] = c;
             freeSlot = freeSlot + 1;
         }
@@ -151,9 +157,9 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame) {
     }
     else {
         char arr[4];
-        shortToBytes(sendingOpCode, &arr);
+        shortToBytes(sendingOpCode, &arr[0]);
         unsigned int freeSlot = 2;
-        for(char& c : frame) {
+        for(const char& c : frame) {
             arr[freeSlot] = c;
             freeSlot = freeSlot + 1;
         }

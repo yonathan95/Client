@@ -33,12 +33,13 @@ int main (int argc, char *argv[]) {
 	
 	//From here we will see the rest of the ehco client implementation:
     while (1) {
-        const short bufsize = 1024;
+        const short bufsize = 16384;
         char buf[bufsize];
         std::cin.getline(buf, bufsize);//read from keyboard in to the buf
 		std::string line(buf); // create a string call line
 		connectionHandler.prepareLine(line);
 		int len=line.length();
+		std::cout<<"sending"<<std::endl;
         if (!connectionHandler.sendLine(line)) {
             std::cout << "Disconnected. Exiting...\n" << std::endl;
             break;
@@ -52,6 +53,7 @@ int main (int argc, char *argv[]) {
         // 2. Read a line (up to the newline character using the getline() buffered reader
         // 3. Read up to the null character
         std::string answer;
+        std::cout<<"receiving"<<std::endl;
         // Get back an answer: by using the expected number of bytes (len bytes + newline delimiter)
         // We could also use: connectionHandler.getline(answer) and then get the answer without the newline char at the end
         if (!connectionHandler.getLine(answer)) {
