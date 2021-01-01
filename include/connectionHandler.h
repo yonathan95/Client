@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <boost/asio.hpp>
+#include <map>
 
 using boost::asio::ip::tcp;
 
@@ -15,18 +16,18 @@ private:
 	tcp::socket socket_;
 	short sendingOpCode;
     short gettingOpCode;
-    std::map<std::string, short> opMap;
+    short OpMessage;
+    std::map <std::string, short> opMap;
  
 public:
-    ConnectionHandler(std::string host, short port, std::map<std::string,short>);
+    ConnectionHandler(std::string host, short port, std::map<std::string,short> map);
     virtual ~ConnectionHandler();
  
     // Connect to the remote machine
     bool connect();
  
     // Read a fixed number of bytes from the server - blocking.
-    // Returns false in case the connection is closed before bytesToRead bytes can be read.
-    bool getBytes(char bytes[], unsigned int bytesToRead);
+    // Returns false in case the connection is cesToRead);
  
 	// Send a fixed number of bytes from the client - blocking.
     // Returns false in case the connection is closed before all the data is sent.

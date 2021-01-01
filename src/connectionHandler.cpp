@@ -85,7 +85,6 @@ bool ConnectionHandler::getFrameAscii(std::string& frame) {
             {
                 return false;
             }
-
             if(counter > 3 & ch != '\0'){
                 frame.append(1, ch);
             }
@@ -93,7 +92,7 @@ bool ConnectionHandler::getFrameAscii(std::string& frame) {
                 opBytes[counter] = ch;
             }
             if (counter > 1 & counter < 4){
-                messageBytes[counter] = ch;
+                messageBytes[counter - 2] = ch;
             }
             counter = counter + 1;
             if (counter == 2){
@@ -103,9 +102,9 @@ bool ConnectionHandler::getFrameAscii(std::string& frame) {
 
             }
             if (counter == 4){
-                gettingOpCode = bytesToShort(messageBytes);
+                OpMessage = bytesToShort(messageBytes);
                 frame = frame + " ";
-                frame = frame + std::to_string(gettingOpCode);
+                frame = frame + std::to_string(OpMessage);
                 if (gettingOpCode == 13) break;
             }
 	    }

@@ -35,8 +35,8 @@ int main (int argc, char *argv[]) {
     while (1) {
         const short bufsize = 1024;
         char buf[bufsize];
-        std::cin.getline(buf, bufsize);
-		std::string line(buf);
+        std::cin.getline(buf, bufsize);//read from keyboard in to the buf
+		std::string line(buf); // create a string call line
 		connectionHandler.prepareLine(line);
 		int len=line.length();
         if (!connectionHandler.sendLine(line)) {
