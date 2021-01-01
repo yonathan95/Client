@@ -38,7 +38,6 @@ int main (int argc, char *argv[]) {
         std::cin.getline(buf, bufsize);//read from keyboard in to the buf
 		std::string line(buf); // create a string call line
 		connectionHandler.prepareLine(line);
-        std::cout<<line<<std::endl;
         int len=line.length();
         if (!connectionHandler.sendLine(line)) {
             std::cout << "Disconnected. Exiting...\n" << std::endl;
@@ -62,13 +61,10 @@ int main (int argc, char *argv[]) {
         
 		// A C string must end with a 0 char delimiter.  When we filled the answer buffer from the socket
 		// we filled up to the \n char - we must make sure now that a 0 char is also present. So we truncate last character.
-        if (connectionHandler.getCode() == 12){
-            std::cout << "ACK" <<" "<< connectionHandler.getCode() <<" " << answer << std::endl;
-        }
-        if (connectionHandler.getCode() == 13){
-            std::cout << "ACK 3" << std::endl;
-            break;
-        }
+        std::cout << answer << std::endl;
+		if (connectionHandler.getOpMessage() == 4){
+                break;
+		}
     }
     return 0;
 }

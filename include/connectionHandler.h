@@ -16,7 +16,7 @@ private:
 	tcp::socket socket_;
 	short sendingOpCode;
     short gettingOpCode;
-    short OpMessage;
+    short opMessage;
     std::map <std::string, short> opMap;
  
 public:
@@ -60,8 +60,11 @@ public:
 
     short bytesToShort(char* bytesArr);
 
-    short getCode();
- 
+    short getOpMessage();
+
+    short getGettingOpCode();
+
+
 }; //class ConnectionHandler
  
 #endif

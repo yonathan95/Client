@@ -74,7 +74,6 @@ bool ConnectionHandler::sendLine(std::string& line) {
  
 
 bool ConnectionHandler::getFrameAscii(std::string& frame) {
-    std::cout<<"getting string"<<endl;
     char ch = '1';
     // Stop when we encounter the null character.
     // Notice that the null character is not appended to the frame string.
@@ -83,7 +82,7 @@ bool ConnectionHandler::getFrameAscii(std::string& frame) {
     char messageBytes [2] ;
     int i = 0;
     try {
-        while(i < 2 | ch != '\0'){
+        while(i < 4 | ch != '\0'){
             if(!getBytes(&ch, 1))
             {
                 return false;
@@ -106,9 +105,9 @@ bool ConnectionHandler::getFrameAscii(std::string& frame) {
 
             }
             if (counter == 4){
-                OpMessage = bytesToShort(messageBytes);
+                opMessage = bytesToShort(messageBytes);
                 frame = frame + " ";
-                frame = frame + std::to_string(OpMessage);
+                frame = frame + std::to_string(opMessage);
                 if (gettingOpCode == 13) break;
             }
             i = i + 1;
@@ -163,7 +162,7 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame) {
             freeSlot = freeSlot + 1;
         }
         arr[freeSlot] = '\0';
-        sendBytes(arr, 4);
+        sendBytes(arr, 3);
     }
 }
  
@@ -203,6 +202,10 @@ short ConnectionHandler::bytesToShort(char* bytesArr){
     return result;
 }
 
-short ConnectionHandler::getCode(){
-    return sendingOpCode;
+short ConnectionHandler::getOpMessage(){
+    return opMessage;
+}
+
+short ConnectionHandler::getGettingOpCode(){
+    return gettingOpCode;
 }
