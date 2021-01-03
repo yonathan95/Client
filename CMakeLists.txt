@@ -3,6 +3,6 @@ project(Client)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/src/echoClient.cpp)
+add_executable(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/src/Client.cpp)
 
 include_directories(~/CLionProjects/Client/include)

@@ -9,7 +9,7 @@ using std::cerr;
 using std::endl;
 using std::string;
  
-ConnectionHandler::ConnectionHandler(string host, short port,std::map<std::string,short> map): host_(host), port_(port), io_service_(), socket_(io_service_), sendingOpCode(0), gettingOpCode(0),opMap(map){}
+ConnectionHandler::ConnectionHandler(string host, short port,std::map<std::string,short> &map): host_(host), port_(port), io_service_(), socket_(io_service_), sendingOpCode(0), gettingOpCode(0),opMessage(0),opMap(map){}
     
 ConnectionHandler::~ConnectionHandler() {
     close();
@@ -83,32 +83,32 @@ bool ConnectionHandler::getFrameAscii(std::string& frame) {
     char messageBytes [2] ;
     int i = 0;
     try {
-        while(i < 4 | ch != '\0'){
+        while((i < 4) | (ch != '\0')){
             if(!getBytes(&ch, 1))
             {
                 return false;
             }
-            if(counter > 3 & ch != '\0'){
+            if((counter > 3) & (ch != '\0')){
                 frame.append(1, ch);
             }
             if (counter < 2){
                 std::cout<<ch<<endl;
                 opBytes[counter] = ch;
             }
-            if (counter > 1 & counter < 4){
+            if ((counter > 1) & (counter < 4)){
                 messageBytes[counter - 2] = ch;
             }
             counter = counter + 1;
             if (counter == 2){
                 gettingOpCode = bytesToShort(opBytes);
-                if (gettingOpCode == 12) frame = frame + "ACK";
-                else frame = frame + "ERROR";
+                if (gettingOpCode == 12) frame += "ACK";
+                else frame += "ERROR";
 
             }
             if (counter == 4){
                 opMessage = bytesToShort(messageBytes);
-                frame = frame + " ";
-                frame = frame + std::to_string(opMessage) + "\n";
+                frame += " ";
+                frame += std::to_string(opMessage) + "\n";
                 if (gettingOpCode == 13) break;
             }
             i = i + 1;
@@ -122,7 +122,7 @@ bool ConnectionHandler::getFrameAscii(std::string& frame) {
  
  
 bool ConnectionHandler::sendFrameAscii(const std::string& frame) {
-    if (sendingOpCode == 1 | sendingOpCode == 2 | sendingOpCode == 3) {
+    if ((sendingOpCode == 1) | (sendingOpCode == 2) | (sendingOpCode == 3)) {
         char arr[frame.length() + 3];
         shortToBytes(sendingOpCode, &arr[0]);
         unsigned int freeSlot = 2;
@@ -136,12 +136,12 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame) {
             }
         }
         arr[freeSlot] = '\0';
-        sendBytes(arr, frame.length() + 3);
+        return sendBytes(arr, frame.length() + 3);
     }
-    else if (sendingOpCode == 4 | sendingOpCode == 11) {
+    else if ((sendingOpCode == 4) | (sendingOpCode == 11)) {
         char arr[2];
         shortToBytes(sendingOpCode, &arr[0]);
-        sendBytes(arr, 2);
+        return sendBytes(arr, 2);
     }
     else if (sendingOpCode == 8) {
         char arr[frame.length() + 3];
@@ -152,14 +152,14 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame) {
             freeSlot = freeSlot + 1;
         }
         arr[freeSlot] = '\0';
-        sendBytes(arr, frame.length() + 3);
+        return sendBytes(arr, frame.length() + 3);
     }
     else {
         char arr[4];
         short courseNum = boost::lexical_cast<short>(frame);
         shortToBytes(sendingOpCode, &arr[0]);
         shortToBytesTwo(courseNum,&arr[0]);
-        sendBytes(arr, 4);
+        return sendBytes(arr, 4);
     }
 }
  
@@ -175,9 +175,8 @@ void ConnectionHandler::close() {
 void ConnectionHandler::prepareLine(std::string &line){
     std::string code;
     std::string delimiter = " ";
-    size_t pos = 0;
     std::string token;
-    pos = line.find(delimiter);
+    size_t pos = line.find(delimiter);
     if (pos != line.npos){
         code = line.substr(0, pos);
         line.erase(0, pos + delimiter.length());

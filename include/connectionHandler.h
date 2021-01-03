@@ -20,7 +20,7 @@ private:
     std::map <std::string, short> opMap;
  
 public:
-    ConnectionHandler(std::string host, short port, std::map<std::string,short> map);
+    ConnectionHandler(std::string host, short port, std::map<std::string,short> &map);
     virtual ~ConnectionHandler();
  
     // Connect to the remote machine
