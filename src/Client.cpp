@@ -1,5 +1,8 @@
 #include <stdlib.h>
 #include <connectionHandler.h>
+#include <thread>
+#include <Task.h>
+#include <mutex>
 
 /**
 * This code assumes that the server replies the exact text the client sent it (as opposed to the practical session example)
@@ -32,11 +35,13 @@ int main (int argc, char *argv[]) {
     }
 	
 	//From here we will see the rest of the ehco client implementation:
+    std::vector<std::string> inputs;
+    std::mutex mutex1;
+    Task task(mutex1,inputs);
+    std::thread th1();
     while (1) {
-        const short bufsize = 16384;
-        char buf[bufsize];
-        std::cin.getline(buf, bufsize);//read from keyboard in to the buf
-		std::string line(buf); // create a string call line
+
+
 		connectionHandler.prepareLine(line);
         if (!connectionHandler.sendLine(line)) {
             std::cout << "Disconnected. Exiting...\n" << std::endl;
