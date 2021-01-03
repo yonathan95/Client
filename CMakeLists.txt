@@ -3,6 +3,6 @@ project(Client)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/src/Client.cpp src/Task.cpp include/Task.h)
+add_executable(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/src/Client.cpp src/KeyboardReader.cpp include/KeyboardReader.h src/SocketReader.cpp include/SocketReader.h)
 
 include_directories(~/CLionProjects/Client/include)

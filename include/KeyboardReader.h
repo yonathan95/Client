@@ -4,14 +4,13 @@
 #ifndef CLIENT_TASK_H
 #define CLIENT_TASK_H
 
-class Task{
+class KeyboardReader{
 private:
     std::mutex & _mutex;
-    std::vector<std::string> _inputs;
+    std::vector<std::string> &_inputs;
 public:
-    Task(std::mutex & mutex1, std::vector<std::string> &input);
+    KeyboardReader(std::mutex & mutex1, std::vector<std::string> &input);
     void readFromKeyboard();
-    void readFromSocket();
 
 
 

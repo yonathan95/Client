@@ -1,14 +1,14 @@
 #include <connectionHandler.h>
 #include <mutex>
-#include <Task.h>
+#include <KeyboardReader.h>
 #include <thread>
 #include <vector>
 
 
-Task::Task(std::mutex & mutex, std::vector<std::string> & input):_mutex(mutex),_inputs(input) {}
+KeyboardReader::KeyboardReader(std::mutex & mutex, std::vector<std::string> & input): _mutex(mutex), _inputs(input) {}
 
 
-void Task::readFromKeyboard() {
+void KeyboardReader::readFromKeyboard() {
     while(1){
         try{
             const short bufsize = 16384;
@@ -20,12 +20,6 @@ void Task::readFromKeyboard() {
         }
         catch (std::exception& e) {break;}
     }
-}
-
-void  Task::readFromSocket() {
-
-
-
 }
 
 
