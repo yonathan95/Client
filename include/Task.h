@@ -14,6 +14,6 @@ public:
     void readFromSocket();
 
 
-    Task(std::mutex mutex, std::vector<std::string> vector);
+    Task(std::mutex &mutex, std::vector<std::string> vector);
 };
 #endif //CLIENT_TASK_H

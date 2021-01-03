@@ -2,8 +2,9 @@
 #include <mutex>
 #include <Task.h>
 #include <thread>
+#include <vector>
 
-Task::Task(std::mutex mutex, std::vector<std::string> vector):_mutex(mutex),_inputs(vector) {}
+Task::Task(std::mutex &mutex, std::vector<std::string> vector):_mutex(mutex),_inputs(vector) {}
 
 
 void Task::readFromKeyboard() {
