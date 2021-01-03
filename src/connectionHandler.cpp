@@ -199,11 +199,8 @@ void ConnectionHandler::shortToBytesTwo(short num, char* bytesArr){
 }
 
 short ConnectionHandler::bytesToShort(char* bytesArr){
-    cout << "bytes[0]: " << bytesArr[0] << endl;
-    cout << "bytes[1]: " << bytesArr[1] << endl;
     short result = (short)((bytesArr[0] & 0xff) << 8);
     result += (short)(bytesArr[1] & 0xff);
-    cout << "result: " << result << endl;
     return result;
 }
 
