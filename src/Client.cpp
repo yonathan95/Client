@@ -60,6 +60,8 @@ int main (int argc, char *argv[]) {
             std::cout << answer << std::endl;
             if ((connectionHandler.getGettingOpCode() == 12) & (connectionHandler.getOpMessage() == 4)){
                 stopThreads = true;
+                th1.join();
+                th2.join();
                 break;
             }
         }
