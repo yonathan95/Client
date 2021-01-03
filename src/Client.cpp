@@ -4,6 +4,7 @@
 #include <Task.h>
 #include <mutex>
 #include <vector>
+#include <condition_variable>
 
 /**
 * This code assumes that the server replies the exact text the client sent it (as opposed to the practical session example)
@@ -34,15 +35,16 @@ int main (int argc, char *argv[]) {
         std::cerr << "Cannot connect to " << host << ":" << port << std::endl;
         return 1;
     }
-	
-	//From here we will see the rest of the ehco client implementation:
     std::vector<std::string> inputs;
     std::mutex mutex1;
     Task task(mutex1,inputs);
-    std::thread th1();
+    std::thread th1(&Task::readFromKeyboard,&task);
     while (1) {
-
-
+        while(inputs.size() == 0){}
+        std::string line;
+        {std::lock_guard<std::mutex> lock(mutex1);
+        line = inputs[0];
+        inputs.erase(inputs.begin());}
 		connectionHandler.prepareLine(line);
         if (!connectionHandler.sendLine(line)) {
             std::cout << "Disconnected. Exiting...\n" << std::endl;
