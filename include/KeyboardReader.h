@@ -8,8 +8,9 @@ class KeyboardReader{
 private:
     std::mutex & _mutex;
     std::vector<std::string> &_inputs;
+    std::atomic_bool &stopper;
 public:
-    KeyboardReader(std::mutex & mutex1, std::vector<std::string> &input);
+    KeyboardReader(std::mutex & mutex1, std::vector<std::string> &input, std::atomic_bool &stopper);
     void readFromKeyboard();
 
 

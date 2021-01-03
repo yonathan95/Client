@@ -36,9 +36,10 @@ int main (int argc, char *argv[]) {
     std::vector<std::string> outputs;
     std::mutex mutex1;
     std::mutex mutex2;
-    KeyboardReader task(mutex1, inputs);
+    std::atomic_bool stopThreads(false);
+    KeyboardReader task(mutex1, inputs, stopThreads);
     std::thread th1(&KeyboardReader::readFromKeyboard, &task);
-    SocketReader socketReader(connectionHandler, mutex2, outputs);
+    SocketReader socketReader(connectionHandler, mutex2, outputs, stopThreads);
     std::thread th2(&SocketReader::readFromSocket, &socketReader);
     while (1) {
         if(inputs.size() != 0){
@@ -58,6 +59,7 @@ int main (int argc, char *argv[]) {
                 outputs.erase(outputs.begin());}
             std::cout << answer << std::endl;
             if ((connectionHandler.getGettingOpCode() == 12) & (connectionHandler.getOpMessage() == 4)){
+                stopThreads = true;
                 break;
             }
         }
