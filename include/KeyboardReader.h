@@ -1,8 +1,8 @@
 #include <mutex>
 
 
-#ifndef CLIENT_TASK_H
-#define CLIENT_TASK_H
+#ifndef CLIENT_KEYBOARDREADER_H
+#define CLIENT_KEYBOARDREADER_H
 
 class KeyboardReader{
 private:
@@ -15,4 +15,4 @@ public:
 
 
 };
-#endif //CLIENT_TASK_H
+#endif //CLIENT_KEYBOARDREADER_H

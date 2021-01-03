@@ -6,6 +6,9 @@ SocketReader::SocketReader(ConnectionHandler &ch, std::mutex &mutex1, std::vecto
 
 }
 
-void readFromSocket(){
-
+void SocketReader::readFromSocket(){
+    std::string answer;
+    connectionHandler.getLine(answer);
+    std::lock_guard<std::mutex> lock(mutex);
+    outputs.push_back(answer);
 }

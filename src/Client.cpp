@@ -5,6 +5,7 @@
 #include <mutex>
 #include <vector>
 #include <iostream>
+#include <SocketReader.h>
 
 
 /**
@@ -37,8 +38,8 @@ int main (int argc, char *argv[]) {
     std::mutex mutex2;
     KeyboardReader task(mutex1, inputs);
     std::thread th1(&KeyboardReader::readFromKeyboard, &task);
-    TaskTwo taskTwo(connectionHandler, mutex2, outputs);
-    std::thread th2(&TaskTwo::readFromSocket, &taskTwo);
+    SocketReader socketReader(connectionHandler, mutex2, outputs);
+    std::thread th2(&SocketReader::readFromSocket, &socketReader);
     while (1) {
         if(inputs.size() != 0){
             std::string line;
