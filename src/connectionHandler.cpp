@@ -1,4 +1,5 @@
 #include <connectionHandler.h>
+#include <boost/lexical_cast.hpp>
  
 using boost::asio::ip::tcp;
 
@@ -107,7 +108,7 @@ bool ConnectionHandler::getFrameAscii(std::string& frame) {
             if (counter == 4){
                 opMessage = bytesToShort(messageBytes);
                 frame = frame + " ";
-                frame = frame + std::to_string(opMessage);
+                frame = frame + std::to_string(opMessage) + "\n";
                 if (gettingOpCode == 13) break;
             }
             i = i + 1;
@@ -155,14 +156,10 @@ bool ConnectionHandler::sendFrameAscii(const std::string& frame) {
     }
     else {
         char arr[4];
+        short courseNum = boost::lexical_cast<short>(frame);
         shortToBytes(sendingOpCode, &arr[0]);
-        unsigned int freeSlot = 2;
-        for(const char& c : frame) {
-            arr[freeSlot] = c;
-            freeSlot = freeSlot + 1;
-        }
-        arr[freeSlot] = '\0';
-        sendBytes(arr, 3);
+        shortToBytesTwo(courseNum,&arr[0]);
+        sendBytes(arr, 4);
     }
 }
  
@@ -196,9 +193,17 @@ void ConnectionHandler::shortToBytes(short num, char* bytesArr){
     bytesArr[1] = (num & 0xFF);
 }
 
+void ConnectionHandler::shortToBytesTwo(short num, char* bytesArr){
+    bytesArr[2] = ((num >> 8) & 0xFF);
+    bytesArr[3] = (num & 0xFF);
+}
+
 short ConnectionHandler::bytesToShort(char* bytesArr){
+    cout << "bytes[0]: " << bytesArr[0] << endl;
+    cout << "bytes[1]: " << bytesArr[1] << endl;
     short result = (short)((bytesArr[0] & 0xff) << 8);
     result += (short)(bytesArr[1] & 0xff);
+    cout << "result: " << result << endl;
     return result;
 }
 

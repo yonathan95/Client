@@ -62,7 +62,7 @@ int main (int argc, char *argv[]) {
 		// A C string must end with a 0 char delimiter.  When we filled the answer buffer from the socket
 		// we filled up to the \n char - we must make sure now that a 0 char is also present. So we truncate last character.
         std::cout << answer << std::endl;
-		if (connectionHandler.getOpMessage() == 4){
+		if (connectionHandler.getGettingOpCode() == 12 & connectionHandler.getOpMessage() == 4){
                 break;
 		}
     }

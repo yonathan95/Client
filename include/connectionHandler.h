@@ -58,6 +58,8 @@ public:
 
     void shortToBytes(short num, char* bytesArr);
 
+    void shortToBytesTwo(short num, char* bytesArr);
+
     short bytesToShort(char* bytesArr);
 
     short getOpMessage();
