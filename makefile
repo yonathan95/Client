@@ -2,10 +2,10 @@ CFLAGS:=-c -Wall -Weffc++ -g -std=c++11 -Iinclude
 
 LFLAGS:= -lboost_system -lpthread
 
-all: Client
-	g++ -o bin/Client bin/connectionHandler.o bin/Client.o bin/KeyboardReader.o bin/SocketReader.o $(LFLAGS)
+all: BGRSclient
+	g++ -o bin/BGRSclient bin/connectionHandler.o bin/Client.o bin/KeyboardReader.o bin/SocketReader.o $(LFLAGS)
 
-Client: bin/connectionHandler.o bin/Client.o bin/KeyboardReader.o bin/SocketReader.o
+BGRSclient: bin/connectionHandler.o bin/Client.o bin/KeyboardReader.o bin/SocketReader.o
 	
 bin/connectionHandler.o: src/connectionHandler.cpp
 	g++ $(CFLAGS) -o bin/connectionHandler.o src/connectionHandler.cpp

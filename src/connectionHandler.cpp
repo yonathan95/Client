@@ -2,13 +2,8 @@
 #include <boost/lexical_cast.hpp>
  
 using boost::asio::ip::tcp;
-
-using std::cin;
-using std::cout;
-using std::cerr;
-using std::endl;
 using std::string;
- 
+
 ConnectionHandler::ConnectionHandler(string host, short port,std::map<std::string,short> &map): host_(host), port_(port), io_service_(), socket_(io_service_), sendingOpCode(0), gettingOpCode(0),opMessage(0),opMap(map){}
     
 ConnectionHandler::~ConnectionHandler() {
@@ -109,7 +104,7 @@ bool ConnectionHandler::getFrameAscii(std::string& frame) {
             i = i + 1;
 	    }
     } catch (std::exception& e) {
-         return false;
+        return false;
     }
     return true;
 }

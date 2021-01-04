@@ -21,6 +21,7 @@ private:
  
 public:
     ConnectionHandler(std::string host, short port, std::map<std::string,short> &map);
+
     virtual ~ConnectionHandler();
  
     // Connect to the remote machine
