@@ -81,7 +81,7 @@ bool ConnectionHandler::getFrameAscii(std::string& frame) {
             {
                 return false;
             }
-            if (counter == 4){
+            if ((counter == 4) & ((opMessage <= 9) & (opMessage >= 6))){
                 frame += "\n";
             }
             if((counter > 3) & (ch != '\0')){
