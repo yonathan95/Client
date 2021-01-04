@@ -16,8 +16,6 @@ ConnectionHandler::~ConnectionHandler() {
 }
  
 bool ConnectionHandler::connect() {
-    std::cout << "Starting connect to " 
-        << host_ << ":" << port_ << std::endl;
     try {
 		tcp::endpoint endpoint(boost::asio::ip::address::from_string(host_), port_); // the server endpoint
 		boost::system::error_code error;
@@ -26,7 +24,6 @@ bool ConnectionHandler::connect() {
 			throw boost::system::system_error(error);
     }
     catch (std::exception& e) {
-        std::cerr << "Connection failed (Error: " << e.what() << ')' << std::endl;
         return false;
     }
     return true;
@@ -42,7 +39,6 @@ bool ConnectionHandler::getBytes(char bytes[], unsigned int bytesToRead) {
 		if(error)
 			throw boost::system::system_error(error);
     } catch (std::exception& e) {
-        std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
         return false;
     }
     return true;
@@ -59,7 +55,6 @@ bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
 		                throw boost::system::system_error(error);
 
     } catch (std::exception& e) {
-        std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
         return false;
     }
     return true;
@@ -76,8 +71,6 @@ bool ConnectionHandler::sendLine(std::string& line) {
 
 bool ConnectionHandler::getFrameAscii(std::string& frame) {
     char ch = '1';
-    // Stop when we encounter the null character.
-    // Notice that the null character is not appended to the frame string.
     unsigned int counter = 0;
     char opBytes [2] ;
     char messageBytes [2] ;
@@ -88,11 +81,13 @@ bool ConnectionHandler::getFrameAscii(std::string& frame) {
             {
                 return false;
             }
+            if (counter == 4){
+                frame += "\n";
+            }
             if((counter > 3) & (ch != '\0')){
                 frame.append(1, ch);
             }
             if (counter < 2){
-                std::cout<<ch<<endl;
                 opBytes[counter] = ch;
             }
             if ((counter > 1) & (counter < 4)){
@@ -108,14 +103,13 @@ bool ConnectionHandler::getFrameAscii(std::string& frame) {
             if (counter == 4){
                 opMessage = bytesToShort(messageBytes);
                 frame += " ";
-                frame += std::to_string(opMessage) + "\n";
+                frame += std::to_string(opMessage);
                 if (gettingOpCode == 13) break;
             }
             i = i + 1;
 	    }
     } catch (std::exception& e) {
-	std::cerr << "recv failed2 (Error: " << e.what() << ')' << std::endl;
-	return false;
+         return false;
     }
     return true;
 }
@@ -168,7 +162,6 @@ void ConnectionHandler::close() {
     try{
         socket_.close();
     } catch (...) {
-        std::cout << "closing failed: connection already closed" << std::endl;
     }
 }
 

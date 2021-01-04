@@ -36,33 +36,37 @@ int main (int argc, char *argv[]) {
     std::vector<std::string> outputs;
     std::mutex mutex1;
     std::mutex mutex2;
-    std::atomic_bool stopThreads(false);
+    bool stopThreads = false;
     KeyboardReader task(mutex1, inputs, stopThreads);
-    std::thread th1(&KeyboardReader::readFromKeyboard, &task);
-    SocketReader socketReader(connectionHandler, mutex2, outputs, stopThreads);
-    std::thread th2(&SocketReader::readFromSocket, &socketReader);
-    while (1) {
-        if(inputs.size() != 0){
-            std::string line;
-            {std::lock_guard<std::mutex> lock(mutex1);
-                line = inputs[0];
-                inputs.erase(inputs.begin());}
-            connectionHandler.prepareLine(line);
-            if (!connectionHandler.sendLine(line)) {
-                break;
+    try{
+        std::thread th1(&KeyboardReader::readFromKeyboard, &task);
+        SocketReader socketReader(connectionHandler, mutex2, outputs, stopThreads);
+        std::thread th2(&SocketReader::readFromSocket, &socketReader);
+        while (1) {
+            if(inputs.size() != 0){
+                std::string line;
+                {std::lock_guard<std::mutex> lock(mutex1);
+                    line = inputs[0];
+                    inputs.erase(inputs.begin());}
+                connectionHandler.prepareLine(line);
+                if (!connectionHandler.sendLine(line)) {
+                    break;
+                }
+            }
+            if (outputs.size() != 0){
+                std::string answer;
+                {std::lock_guard<std::mutex> lock(mutex2);
+                    answer = outputs[0];
+                    outputs.erase(outputs.begin());}
+                std::cout << answer << "\n";
+                if ((connectionHandler.getGettingOpCode() == 12) & (connectionHandler.getOpMessage() == 4)){
+                    stopThreads = true;
+                    th1.detach();
+                    th2.detach();
+                    break;
+                }
             }
         }
-        if (outputs.size() != 0){
-            std::string answer;
-            {std::lock_guard<std::mutex> lock(mutex2);
-                answer = outputs[0];
-                outputs.erase(outputs.begin());}
-            std::cout << answer << std::endl;
-            if ((connectionHandler.getGettingOpCode() == 12) & (connectionHandler.getOpMessage() == 4)){
-                stopThreads.exchange(true);
-                break;
-            }
-        }
-    }
+    }catch (std::exception e){}
     return 0;
 }
