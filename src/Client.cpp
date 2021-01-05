@@ -7,10 +7,6 @@
 #include <iostream>
 #include <SocketReader.h>
 
-
-/**
-* This code assumes that the server replies the exact text the client sent it (as opposed to the practical session example)
-*/
 int main (int argc, char *argv[]) {
     std::string host = argv[1];
     short port = atoi(argv[2]);
@@ -37,13 +33,15 @@ int main (int argc, char *argv[]) {
     std::mutex mutex1;
     std::mutex mutex2;
     bool stopThreads = false;
-    KeyboardReader task(mutex1, inputs, stopThreads);
+    std::condition_variable _cv;
+    volatile bool finished = false;
+    KeyboardReader keyboardReader(mutex1, inputs, stopThreads, _cv, finished);
+    SocketReader socketReader(connectionHandler, mutex2, outputs, stopThreads, finished);
     try{
-        std::thread th1(&KeyboardReader::readFromKeyboard, &task);
-        SocketReader socketReader(connectionHandler, mutex2, outputs, stopThreads);
+        std::thread th1(&KeyboardReader::readFromKeyboard, &keyboardReader);
         std::thread th2(&SocketReader::readFromSocket, &socketReader);
         while (1) {
-            if(inputs.size() != 0){
+            if(!inputs.empty()){
                 std::string line;
                 {std::lock_guard<std::mutex> lock(mutex1);
                     line = inputs[0];
@@ -53,20 +51,26 @@ int main (int argc, char *argv[]) {
                     break;
                 }
             }
-            if (outputs.size() != 0){
+            if (!outputs.empty()){
                 std::string answer;
                 {std::lock_guard<std::mutex> lock(mutex2);
                     answer = outputs[0];
                     outputs.erase(outputs.begin());}
                 std::cout << answer << "\n";
                 if ((connectionHandler.getGettingOpCode() == 12) & (connectionHandler.getOpMessage() == 4)){
-                    stopThreads = true;
-                    th1.detach();
-                    th2.detach();
+                    {std::lock_guard<std::mutex> lock(mutex1);
+                    stopThreads = true;}
+                    _cv.notify_all();
                     break;
                 }
+                if ((connectionHandler.getGettingOpCode() == 13) & (connectionHandler.getOpMessage() == 4)){
+                    std::lock_guard<std::mutex> lock(mutex1);
+                    stopThreads = true;}
+                    _cv.notify_all();
+                }
             }
-        }
-    }catch (std::exception e){}
+        th1.join();
+        th2.join();
+    }catch (std::exception &e){}
     return 0;
 }

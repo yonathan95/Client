@@ -10,8 +10,9 @@ private:
     std::mutex & mutex;
     std::vector<std::string> &outputs;
     bool &stopper;
+    volatile bool &finished;
 public:
-    SocketReader (ConnectionHandler &connectionHandler, std::mutex & mutex1, std::vector<std::string> &outputs1, bool &stopper);
+    SocketReader (ConnectionHandler &connectionHandler, std::mutex & mutex1, std::vector<std::string> &outputs1, bool &stopper, volatile bool &finished);
 
     void readFromSocket();
 
