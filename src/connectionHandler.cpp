@@ -78,10 +78,10 @@ bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
 
 /**
 * get a string from the client socket .
-*@param line - the string to be build form the message .
+*@param frame - the string to be build form the message .
 *@return true if succeed to read the message .
 */
-bool ConnectionHandler::getLine(std::string& line) {
+bool ConnectionHandler::getLine(std::string& frame) {
     char ch = '1';
     unsigned int counter = 0;
     char opBytes [2] ;
@@ -131,7 +131,7 @@ bool ConnectionHandler::getLine(std::string& line) {
 * @param line - the string  expected to be sent.
 * @return true if succeed to sent all the bytes.
 */
-bool ConnectionHandler::sendLine(std::string& line) {
+bool ConnectionHandler::sendLine(std::string& frame) {
     if ((sendingOpCode == 1) | (sendingOpCode == 2) | (sendingOpCode == 3)) {
         char arr[frame.length() + 3];
         shortToBytes(sendingOpCode, &arr[0]);
